@@ -2,7 +2,7 @@ const router = require('express').Router();
 const cors = require('cors');
 
 router.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: "https://aducksaidmeow.github.io/test-frontend",
   credentials: true
 }));
 
