@@ -11,7 +11,7 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET,
   process.env.NODE_ENV === 'production' ? 
-    "https://aducksaidmeow.github.io/test-frontend" :
+    "https://aducksaidmeow.github.io" :
     "http://localhost:3000"
 )
 
@@ -30,8 +30,8 @@ router.post('/test', async(req, res, next) => {
 router.post('/get-token', async(req, res, next) => {
   try {
     const { code } = req.body;
-    const { tokens } = await oauth2Client.getToken(code);
-    res.send(tokens);
+    //const { tokens } = await oauth2Client.getToken(code);
+    res.send(oauth2Client);
   } catch(error) {
     next(error);
   }
