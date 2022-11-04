@@ -3,7 +3,7 @@ const { google } = require('googleapis');
 const cors = require('cors');
 
 router.use(cors({
-  origin: "http://aducksaidmeow.github.io",
+  origin: "https://aducksaidmeow.github.io",
   credentials: true
 }));
 
