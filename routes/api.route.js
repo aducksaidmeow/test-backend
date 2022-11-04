@@ -31,7 +31,7 @@ router.post('/get-token', async(req, res, next) => {
   try {
     const { code } = req.body;
     //const { tokens } = await oauth2Client.getToken(code);
-    res.send(oauth2Client);
+    res.send(process.env);
   } catch(error) {
     next(error);
   }
