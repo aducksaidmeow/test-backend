@@ -60,4 +60,15 @@ router.post('/init', async(req, res, next) => {
   }
 });
 
+router.post('/get-role', async(req, res, next) => {
+  try {
+    const { userId } = req.body;
+    const ref = db.ref(userId + '/role');
+    const role = (await ref.once('value')).val();
+    res.send(role);
+  } catch(error) {
+    next(error);
+  }
+});
+
 module.exports = router;
