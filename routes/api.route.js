@@ -71,4 +71,15 @@ router.post('/get-role', async(req, res, next) => {
   }
 });
 
+router.post('/add-role', async(req, res, next) => {
+  try {
+    const { userId, role } = req.body;
+    const ref = db.ref(userId);
+    ref.update({ role : role });
+    res.send({ message: "Role added" });
+  } catch(error) {
+    next(error);
+  }
+});
+
 module.exports = router;
