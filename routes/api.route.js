@@ -102,6 +102,48 @@ router.post('/add-acl', async(req, res, next) => {
   } catch(error) {
     next(error);
   }
-})
+});
+
+router.post('/add-event', async(req, res, next) => {
+  try {
+    const { userId, title, description, group, startDatetime, endDatetime } = req.body;
+    const groupMember = (await db.ref(userId + '/groups/' + group).once('value')).val();
+    const groupMemberObj = [];
+    groupMember.map((item, index) => {
+      groupMemberObj.push({ email: item });
+    });
+    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    oauth2Client.setCredentials({ refresh_token : refreshToken });
+    const calendar = google.calendar('v3');
+    const response = await calendar.events.insert({
+      auth: oauth2Client,
+      calendarId: 'primary',
+      requestBody: {
+        summary: title,
+        description: description,
+        start: {
+          dateTime: new Date(startDatetime),
+        },
+        end: {
+          dateTime: new Date(endDatetime),
+        },
+        attendees: groupMemberObj,
+      }
+    })
+    res.send(response);
+  } catch(error) {
+    next(error);
+  }
+});
+
+router.post('/add-group', async(req, res, next) => {
+  try {
+    const { userId, groupName, groupMember } = req.body;
+    db.ref(userId + '/groups').update({ [groupName] : groupMember });
+    res.send({ message : "Group added" });
+  } catch(error) {
+    next(error);
+  }
+});
 
 module.exports = router;
