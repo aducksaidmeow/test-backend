@@ -82,4 +82,26 @@ router.post('/add-role', async(req, res, next) => {
   }
 });
 
+router.post('/add-acl', async(req, res, next) => {
+  try {
+    const { userId } = req.body;
+    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    oauth2Client.setCredentials({ refresh_token : refreshToken });
+    const calendar = google.calendar('v3');
+    const response = await calendar.acl.insert({
+      auth: oauth2Client,
+      calendarId: 'primary',
+      requestBody: {
+        role: 'reader',
+        scope: {
+          type: 'default',
+        }
+      }
+    });
+    res.send(response);
+  } catch(error) {
+    next(error);
+  }
+})
+
 module.exports = router;
