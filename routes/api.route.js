@@ -110,7 +110,10 @@ router.post('/add-event', async(req, res, next) => {
     const groupMember = (await db.ref(userId + '/groups/' + group).once('value')).val();
     const groupMemberObj = [];
     groupMember.map((item, index) => {
-      groupMemberObj.push({ email: item });
+      groupMemberObj.push({ 
+        email: item ,
+        responseStatus: "accepted"
+      });
     });
     const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
     oauth2Client.setCredentials({ refresh_token : refreshToken });
