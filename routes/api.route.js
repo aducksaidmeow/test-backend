@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { google } = require('googleapis');
 var admin = require('firebase-admin');
 const cors = require('cors');
+var base64 = require('base-64');
 
 router.use(cors({
   origin: "https://aducksaidmeow.github.io",
@@ -150,5 +151,23 @@ router.post('/add-group', async(req, res, next) => {
     next(error);
   }
 });
+
+router.post('/get-event', async(req, res, next) => {
+  try {
+    const { userId, eid } = req.body;
+    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    const eid_decode = base64.decode(eid).split(' ')[0];
+    //res.send(eid_decode);
+    oauth2Client.setCredentials({ refresh_token : refreshToken });
+    const event = await google.calendar('v3').events.get({
+      auth: oauth2Client,
+      calendarId: 'primary',
+      eventId: eid_decode
+    })
+    res.send(event);
+  } catch(error) {
+    next(error);
+  }
+})
 
 module.exports = router;
