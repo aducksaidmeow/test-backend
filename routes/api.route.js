@@ -107,7 +107,7 @@ router.post('/add-acl', async(req, res, next) => {
 
 router.post('/add-event', async(req, res, next) => {
   try {
-    const { userId, title, description, group, startDatetime, endDatetime } = req.body;
+    const { userId, title, description, group, startTime, endTime } = req.body;
     const groupMember = (await db.ref(userId + '/groups/' + group).once('value')).val();
     const groupMemberObj = [];
     groupMember.map((item, index) => {
@@ -126,11 +126,11 @@ router.post('/add-event', async(req, res, next) => {
         summary: title,
         description: description,
         start: {
-          dateTime: new Date(startDatetime),
+          dateTime: new Date(startTime),
           timeZone: "UTC+07:00"
         },
         end: {
-          dateTime: new Date(endDatetime),
+          dateTime: new Date(endTime),
           timeZone: "UTC+07:00"
         },
         attendees: groupMemberObj,
