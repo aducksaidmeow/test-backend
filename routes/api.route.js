@@ -134,6 +134,11 @@ router.post('/add-event', async(req, res, next) => {
           timeZone: "UTC+07:00"
         },
         attendees: groupMemberObj,
+        extendedProperties: {
+          private: {
+            groupName: group
+          }
+        }
       }
     })
     res.send(response);
