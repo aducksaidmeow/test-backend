@@ -135,7 +135,7 @@ router.post('/add-event', async(req, res, next) => {
         },
         attendees: groupMemberObj,
         extendedProperties: {
-          private: {
+          shared: {
             groupName: group
           }
         }
