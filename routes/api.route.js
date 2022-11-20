@@ -175,4 +175,20 @@ router.post('/get-event', async(req, res, next) => {
   }
 })
 
+router.post('/remove-event', async(req, res, next) => {
+  try {
+    const { userId, eventId } = req.body;
+    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    oauth2Client.setCredentials({ refresh_token: refreshToken });
+    const response = google.calendar('v3').events.delete({
+      auth: oauth2Client,
+      calendarId: 'primary',
+      eventId: eventId,
+    })
+    res.send(response);
+  } catch(error) {
+    next(error);
+  }
+});
+
 module.exports = router;
