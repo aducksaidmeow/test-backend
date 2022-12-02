@@ -191,4 +191,14 @@ router.post('/remove-event', async(req, res, next) => {
   }
 });
 
+router.post('/get-group', async(req, res, next) => {
+  try {
+    const { userId } = req.body;
+    const groups = (await db.ref(userId + "/groups").once('value')).val();
+    res.send(groups);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
