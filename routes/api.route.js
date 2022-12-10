@@ -150,7 +150,9 @@ router.post('/add-event', async(req, res, next) => {
 router.post('/add-group', async(req, res, next) => {
   try {
     const { userId, groupName, groupMember } = req.body;
-    db.ref(userId + '/groups').update({ [groupName] : groupMember });
+    const currentMember = (await db.ref(userId + '/groups/' + groupName).once('value')).val();
+    const newMember = currentMember === null ? groupMember : currentMember.concat(groupMember);
+    db.ref(userId + '/groups').update({ [groupName] : newMember }); 
     res.send({ message : "Group added" });
   } catch(error) {
     next(error);
