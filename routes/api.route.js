@@ -128,10 +128,12 @@ router.post('/add-event', async(req, res, next) => {
         start: {
           dateTime: new Date(startTime),
           //timeZone: "UTC+07:00"
+          timeZone: "UTC+00:00"
         },
         end: {
           dateTime: new Date(endTime),
           //timeZone: "UTC+07:00"
+          timeZone: "UTC+00:00"
         },
         attendees: groupMemberObj,
         extendedProperties: {
