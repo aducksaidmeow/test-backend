@@ -141,7 +141,8 @@ router.post('/add-event', async(req, res, next) => {
         }
       }
     })
-    res.send(response);
+    //res.send(response);
+    res.send(new Date(startTime));
   } catch(error) {
     next(error);
   }
