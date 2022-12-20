@@ -107,19 +107,11 @@ router.post('/add-acl', async(req, res, next) => {
 
 router.post('/add-event', async(req, res, next) => {
   try {
-    const { userId, title, description, group, startTime, endTime } = req.body;
-    const groupMember = (await db.ref(userId + '/groups/' + group).once('value')).val();
-    const groupMemberObj = [];
-    groupMember.map((item, index) => {
-      groupMemberObj.push({ 
-        email: item ,
-        responseStatus: "accepted"
-      });
-    });
-    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    const { studentId, title, description, group, startTime, endTime } = req.body;
+    const refreshToken = (await db.ref(studentId + '/refreshToken').once('value')).val();
     oauth2Client.setCredentials({ refresh_token : refreshToken });
     const calendar = google.calendar('v3');
-    const response = await calendar.events.insert({
+    calendar.events.insert({
       auth: oauth2Client,
       calendarId: 'primary',
       requestBody: {
@@ -128,14 +120,11 @@ router.post('/add-event', async(req, res, next) => {
         start: {
           dateTime: new Date(startTime),
           //timeZone: "UTC+07:00"
-          timeZone: "UTC+00:00"
         },
         end: {
           dateTime: new Date(endTime),
           //timeZone: "UTC+07:00"
-          timeZone: "UTC+00:00"
         },
-        attendees: groupMemberObj,
         extendedProperties: {
           shared: {
             groupName: group
@@ -196,12 +185,22 @@ router.post('/remove-event', async(req, res, next) => {
   }
 });
 
-router.post('/get-group', async(req, res, next) => {
+router.post('/get-all-group', async(req, res, next) => {
   try {
     const { userId } = req.body;
     const groups = (await db.ref(userId + "/groups").once('value')).val();
     res.send(groups);
   } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/get-group', async(req, res, next) => {
+  try {
+    const { userId, group } = req.body;
+    const member = (await db.ref(userId + "/groups/" + group).once("value")).val();
+    res.send(member);
+  } catch(error) {
     next(error);
   }
 });
