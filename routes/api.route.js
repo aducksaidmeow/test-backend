@@ -118,11 +118,13 @@ router.post('/add-event', async(req, res, next) => {
         summary: title,
         description: description,
         start: {
-          dateTime: new Date(startTime),
+          dateTime: (process.env.NODE_ENV ==='production' ? 
+            new Date((new Date(startTime)).setHours((new Date(startTime).getHours() - 7))) : new Date(startTime)),
           //timeZone: "UTC+07:00"
         },
         end: {
-          dateTime: new Date(endTime),
+          dateTime: (process.env.NODE_ENV ==='production' ? 
+            new Date((new Date(endTime)).setHours((new Date(endTime).getHours() - 7))) : new Date(endTime)),
           //timeZone: "UTC+07:00"
         },
         extendedProperties: {
