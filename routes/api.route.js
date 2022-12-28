@@ -53,9 +53,10 @@ router.post('/get-token', async(req, res, next) => {
 router.post('/init', async(req, res, next) => {
   try {
     const { userId, refreshToken } = req.body;
-    const ref = db.ref(userId);
+    const userId2 = userId.replaceAll(".", ",");
+    const ref = db.ref(userId2);
     ref.update({ refreshToken : refreshToken });
-    res.send({ message: "User initialized successfully!" });
+    res.send({ message: "Initialized successfully!" });
   } catch(error) {
     next(error);
   }
@@ -64,7 +65,8 @@ router.post('/init', async(req, res, next) => {
 router.post('/get-role', async(req, res, next) => {
   try {
     const { userId } = req.body;
-    const ref = db.ref(userId + '/role');
+    const userId2 = userId.replaceAll(".", ",");
+    const ref = db.ref(userId2 + '/role');
     const role = (await ref.once('value')).val();
     res.send(role);
   } catch(error) {
@@ -75,7 +77,8 @@ router.post('/get-role', async(req, res, next) => {
 router.post('/add-role', async(req, res, next) => {
   try {
     const { userId, role } = req.body;
-    const ref = db.ref(userId);
+    const userId2 = userId.replaceAll(".", ",");
+    const ref = db.ref(userId2);
     ref.update({ role : role });
     res.send({ message: "Role added" });
   } catch(error) {
@@ -86,7 +89,8 @@ router.post('/add-role', async(req, res, next) => {
 router.post('/add-acl', async(req, res, next) => {
   try {
     const { userId } = req.body;
-    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    const userId2 = userId.replaceAll(".", ",");
+    const refreshToken = (await db.ref(userId2 + '/refreshToken').once('value')).val();
     oauth2Client.setCredentials({ refresh_token : refreshToken });
     const calendar = google.calendar('v3');
     const response = await calendar.acl.insert({
@@ -108,7 +112,8 @@ router.post('/add-acl', async(req, res, next) => {
 router.post('/add-event', async(req, res, next) => {
   try {
     const { studentId, title, description, group, startTime, endTime } = req.body;
-    const refreshToken = (await db.ref(studentId + '/refreshToken').once('value')).val();
+    const studentId2 = studentId.replaceAll(".", ",");
+    const refreshToken = (await db.ref(studentId2 + '/refreshToken').once('value')).val();
     oauth2Client.setCredentials({ refresh_token : refreshToken });
     const calendar = google.calendar('v3');
     calendar.events.insert({
@@ -120,12 +125,10 @@ router.post('/add-event', async(req, res, next) => {
         start: {
           dateTime: (process.env.NODE_ENV ==='production' ? 
             new Date((new Date(startTime)).setHours((new Date(startTime).getHours() - 7))) : new Date(startTime)),
-          //timeZone: "UTC+07:00"
         },
         end: {
           dateTime: (process.env.NODE_ENV ==='production' ? 
             new Date((new Date(endTime)).setHours((new Date(endTime).getHours() - 7))) : new Date(endTime)),
-          //timeZone: "UTC+07:00"
         },
         extendedProperties: {
           shared: {
@@ -134,8 +137,7 @@ router.post('/add-event', async(req, res, next) => {
         }
       }
     })
-    //res.send(response);
-    res.send(new Date(startTime));
+    res.send({});
   } catch(error) {
     next(error);
   }
@@ -144,9 +146,10 @@ router.post('/add-event', async(req, res, next) => {
 router.post('/add-group', async(req, res, next) => {
   try {
     const { userId, groupName, groupMember } = req.body;
-    const currentMember = (await db.ref(userId + '/groups/' + groupName).once('value')).val();
+    const userId2 = userId.replaceAll(".", ",");
+    const currentMember = (await db.ref(userId2 + '/groups/' + groupName).once('value')).val();
     const newMember = currentMember === null ? groupMember : currentMember.concat(groupMember);
-    db.ref(userId + '/groups').update({ [groupName] : newMember }); 
+    db.ref(userId2 + '/groups').update({ [groupName] : newMember }); 
     res.send({ message : "Group added" });
   } catch(error) {
     next(error);
@@ -156,7 +159,8 @@ router.post('/add-group', async(req, res, next) => {
 router.post('/get-event', async(req, res, next) => {
   try {
     const { userId, eid } = req.body;
-    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    const userId2 = userId.replaceAll(".", ",");
+    const refreshToken = (await db.ref(userId2 + '/refreshToken').once('value')).val();
     const eid_decode = base64.decode(eid).split(' ')[0];
     //res.send(eid_decode);
     oauth2Client.setCredentials({ refresh_token : refreshToken });
@@ -174,7 +178,8 @@ router.post('/get-event', async(req, res, next) => {
 router.post('/remove-event', async(req, res, next) => {
   try {
     const { userId, eventId } = req.body;
-    const refreshToken = (await db.ref(userId + '/refreshToken').once('value')).val();
+    const userId2 = userId.replaceAll(".", ",");
+    const refreshToken = (await db.ref(userId2 + '/refreshToken').once('value')).val();
     oauth2Client.setCredentials({ refresh_token: refreshToken });
     const response = google.calendar('v3').events.delete({
       auth: oauth2Client,
@@ -190,7 +195,8 @@ router.post('/remove-event', async(req, res, next) => {
 router.post('/get-all-group', async(req, res, next) => {
   try {
     const { userId } = req.body;
-    const groups = (await db.ref(userId + "/groups").once('value')).val();
+    const userId2 = userId.replaceAll(".", ",");
+    const groups = (await db.ref(userId2 + "/groups").once('value')).val();
     res.send(groups);
   } catch (error) {
     next(error);
@@ -200,7 +206,8 @@ router.post('/get-all-group', async(req, res, next) => {
 router.post('/get-group', async(req, res, next) => {
   try {
     const { userId, group } = req.body;
-    const member = (await db.ref(userId + "/groups/" + group).once("value")).val();
+    const userId2 = userId.replaceAll(".", ",");
+    const member = (await db.ref(userId2 + "/groups/" + group).once("value")).val();
     res.send(member);
   } catch(error) {
     next(error);
