@@ -145,11 +145,18 @@ router.post('/add-event', async(req, res, next) => {
 
 router.post('/add-group', async(req, res, next) => {
   try {
-    const { userId, groupName, groupMember } = req.body;
-    const userId2 = userId.replaceAll(".", ",");
-    const currentMember = (await db.ref(userId2 + '/groups/' + groupName).once('value')).val();
-    const newMember = currentMember === null ? groupMember : currentMember.concat(groupMember);
-    db.ref(userId2 + '/groups').update({ [groupName] : newMember }); 
+    const { teacher, groupName, groupMemberEmail, groupMemberName } = req.body;
+    const teacher2 = teacher.split('@')[0].toLowerCase().replaceAll(".", ",");
+
+    const currentMemberEmail = (await db.ref(teacher2 + '/groups/' + groupName + '/memberEmail').once('value')).val();
+    const currentMemberName = (await db.ref(teacher2 + '/groups/' + groupName + '/memberName').once('value')).val();
+
+    const newMemberEmail = currentMemberEmail === null ? groupMemberEmail : currentMemberEmail.concat(groupMemberEmail);
+    const newMemberName = currentMemberName === null ? groupMemberName : currentMemberName.concat(groupMemberName);
+
+    db.ref(teacher2 + '/groups/' + groupName + '/memberEmail').update(newMemberEmail); 
+    db.ref(teacher2 + '/groups/' + groupName + '/memberName').update(newMemberName);
+
     res.send({ message : "Group added" });
   } catch(error) {
     next(error);
