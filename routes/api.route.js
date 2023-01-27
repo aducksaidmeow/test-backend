@@ -19,6 +19,7 @@ const oauth2Client = new google.auth.OAuth2(
 
 admin.initializeApp({
   databaseURL: process.env.DATABASE_URL,
+  storageBucket: process.env.STORAGE_BUCKET_URL,
   credential: admin.credential.cert({
     projectId: process.env.PROJECT_ID,
     clientEmail: process.env.CLIENT_EMAIL,
@@ -27,6 +28,8 @@ admin.initializeApp({
 });
 
 const db = admin.database();
+
+const strg = admin.storage();
 
 router.get('/', async (req, res, next) => {
   res.send({ message: 'Ok api is working 🚀' });
@@ -111,7 +114,8 @@ router.post('/add-acl', async(req, res, next) => {
 
 router.post('/add-event', async(req, res, next) => {
   try {
-    const { studentId, title, description, group, startTime, endTime } = req.body;
+    const { studentId, title, description, group, startTime, endTime, downloadURL, fileName } = req.body;
+
     const studentId2 = studentId.replaceAll(".", ",");
     const refreshToken = (await db.ref(studentId2 + '/refreshToken').once('value')).val();
     oauth2Client.setCredentials({ refresh_token : refreshToken });
@@ -132,7 +136,9 @@ router.post('/add-event', async(req, res, next) => {
         },
         extendedProperties: {
           shared: {
-            groupName: group
+            groupName: group,
+            downloadURL: downloadURL,
+            fileName: fileName,
           }
         }
       }
@@ -157,7 +163,7 @@ router.post('/add-group', async(req, res, next) => {
     db.ref(teacher2 + '/groups/' + groupName + '/memberEmail').update(newMemberEmail); 
     db.ref(teacher2 + '/groups/' + groupName + '/memberName').update(newMemberName);
 
-    res.send({ message : "Group added" });
+    res.send({ message : "Group added" })
   } catch(error) {
     next(error);
   }
